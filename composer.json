@@ -1,0 +1,24 @@
+{
+    "name": "inl/etl-processor",
+    "type": "library",
+    "description": "Extract | Transform | Load - Library in PHP",
+    "keywords": ["ETL", "Extract", "Transform", "Load"],
+    "license": "MIT",
+    "authors": [
+        {"name": "Michał Pierzchalski", "email": "michal.pierzchalski@gmail.com"}
+    ],
+    "require": {
+        "php": ">=5.4"
+    },
+    "require-dev": {
+        "phpspec/phpspec": "~2.0",
+        "henrikbjorn/phpspec-code-coverage": "~1.0"
+    },
+    "config": {
+        "bin-dir": "bin"
+    },
+    "minimum-stability": "dev",
+    "autoload": {
+        "psr-0": { "INL\\ETL": "lib/" }
+    }
+}
