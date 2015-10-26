@@ -2,12 +2,13 @@
 
 namespace INL\ETL\Transform;
 
+use INL\ETL\Extractor;
 use INL\ETL\Transformer;
 use INL\ETL\TransformerExtension;
 /**
- * @author    Michał Pierzchalski <michal.pierzchalski@gmail.com>
- * @package   INL\ETL\Transform
- * @since     2015-10-23 
+ * @package inlworkaround
+ * @author  Michał Pierzchalski <michal.pierzchalski@gmail.com>
+ * @license MIT
  */
 class SimpleObjectTransformer implements Transformer
 {
@@ -31,21 +32,21 @@ class SimpleObjectTransformer implements Transformer
     }
 
     /**
-     * @return array|string[]
+     * @return \ArrayIterator
      */
-    public function getFields()
+    public function getIterator()
     {
-        return array_map(function ($reflectionProperty) {
+        return new \ArrayIterator(array_map(function ($reflectionProperty) {
             /** @var \ReflectionProperty $reflectionProperty */
             return $reflectionProperty->getName();
-        }, $this->refClass->getProperties(\ReflectionProperty::IS_PRIVATE));
+        }, $this->refClass->getProperties(\ReflectionProperty::IS_PRIVATE)));
     }
 
     /**
      * @param string $field
-     * @param TransformerContext $context
+     * @param Extractor $extractor
      */
-    public function transform($field, TransformerContext $context)
+    public function transform($field, Extractor $extractor)
     {
         if (is_null($this->prototype)) {
             $this->prototype = $this->refClass->newInstanceWithoutConstructor();
@@ -55,10 +56,19 @@ class SimpleObjectTransformer implements Transformer
         if (!$property->isPublic()) {
             $property->setAccessible(true);
         }
+
         $transformMethod = 'transform' . ucfirst($field);
         if (method_exists($this->extension, $transformMethod)) {
-            $value = $this->extension->{$transformMethod}($context);
+            $value = $this->extension->{$transformMethod}($extractor);
             $property->setValue($this->prototype, $value);
         }
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getPrototype()
+    {
+        return $this->prototype;
     }
 }

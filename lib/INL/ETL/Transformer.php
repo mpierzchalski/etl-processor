@@ -2,22 +2,26 @@
 
 namespace INL\ETL;
 
-use INL\ETL\Transform\TransformerContext;
 /**
- * @author    Michał Pierzchalski <michal.pierzchalski@gmail.com.pl>
- * @package   INL\ETL
- * @since     2015-10-23 
+ * @package inlworkaround
+ * @author  Michał Pierzchalski <michal.pierzchalski@gmail.com>
+ * @license MIT
  */
 interface Transformer
 {
     /**
-     * @return array
+     * @return \ArrayIterator
      */
-    public function getFields();
+    public function getIterator();
 
     /**
      * @param string $field
-     * @param TransformerContext $context
+     * @param Extractor $extractor
      */
-    public function transform($field, TransformerContext $context);
+    public function transform($field, Extractor $extractor);
+
+    /**
+     * @return mixed
+     */
+    public function getPrototype();
 }

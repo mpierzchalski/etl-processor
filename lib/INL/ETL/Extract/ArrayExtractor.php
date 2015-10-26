@@ -4,9 +4,9 @@ namespace INL\ETL\Extract;
 
 use INL\ETL\Extractor;
 /**
- * @author    Michał Pierzchalski <michal.pierzchalski@gmail.com>
- * @package   INL\ETL\Extract
- * @since     2015-10-23 
+ * @package inlworkaround
+ * @author  Michał Pierzchalski <michal.pierzchalski@gmail.com>
+ * @license MIT
  */
 class ArrayExtractor implements Extractor
 {
@@ -19,11 +19,8 @@ class ArrayExtractor implements Extractor
     /**
      * @param array $data
      */
-    public function bindData($data)
+    public function __construct($data)
     {
-        if (!is_null($this->iterator)) {
-            throw new \InvalidArgumentException('Data cannot be set again.');
-        }
         $this->data = $data;
         $this->iterator = new \RecursiveArrayIterator($data);
     }
@@ -71,17 +68,40 @@ class ArrayExtractor implements Extractor
     /**
      * {@inheritdoc}
      */
-    public function extract()
-    {
-        //yyyy
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function count()
     {
         return $this->iterator->count();
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetExists($offset)
+    {
+        return $this->iterator->offsetExists($offset);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetGet($offset)
+    {
+        return $this->iterator->offsetGet($offset);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetSet($offset, $value)
+    {
+        $this->iterator->offsetSet($offset, $value);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function offsetUnset($offset)
+    {
+        $this->iterator->offsetUnset($offset);
+    }
 }

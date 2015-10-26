@@ -2,8 +2,11 @@
 
 namespace INL\ETL;
 
-use INL\ETL\Transform\TransformerContext;
-
+/**
+ * @package inlworkaround
+ * @author  Michał Pierzchalski <michal.pierzchalski@gmail.com>
+ * @license MIT
+ */
 class Processor
 {
     /** @var Extractor */
@@ -12,25 +15,30 @@ class Processor
     /** @var Transformer */
     private $transformer;
 
+    /** @var Loader */
+    private $loader;
+
     /**
      * @param Extractor $extractor
      * @param Transformer $transformer
+     * @param Loader $loader
      */
-    public function __construct(Extractor $extractor, Transformer $transformer)
+    public function __construct(Extractor $extractor, Transformer $transformer, Loader $loader)
     {
         $this->extractor = $extractor;
         $this->transformer = $transformer;
+        $this->loader = $loader;
     }
 
-    /**
-     * @param mixed $data
-     */
-    public function proceed($data)
+    public function proceed()
     {
-        $this->extractor->bindData($data);
-        $context = new TransformerContext($data, $this->extractor);
-        foreach ($this->transformer->getFields() as $field) {
-            $this->transformer->transform($field, $context);
-        }
+        $iterator = $this->transformer->getIterator();
+        do {
+            $this->transformer->transform($iterator->current(), $this->extractor);
+            $iterator->next();
+        } while ($iterator->valid());
+
+        $prototype = $this->transformer->getPrototype();
+        $this->loader->load($prototype);
     }
 }

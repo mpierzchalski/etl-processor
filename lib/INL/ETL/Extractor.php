@@ -3,14 +3,10 @@
 namespace INL\ETL;
 
 /**
- * @author    Michał Pierzchalski <michal.pierzchalski@gmail.com>
- * @package   INL\ETL
- * @since     2015-10-23 
+ * @package inlworkaround
+ * @author  Michał Pierzchalski <michal.pierzchalski@gmail.com>
+ * @license MIT
  */
-interface Extractor extends \Iterator, \Countable
+interface Extractor extends \Iterator, \Countable, \ArrayAccess
 {
-    /**
-     * @param mixed $data
-     */
-    public function bindData($data);
 }
