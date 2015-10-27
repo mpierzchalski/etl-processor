@@ -1,2 +1,5 @@
-/composer.lock
-/.idea
+.idea/
+bin/
+vendor/
+coverage/
+composer.lock

@@ -19,6 +19,7 @@
     },
     "minimum-stability": "dev",
     "autoload": {
-        "psr-0": { "INL\\ETL": "lib/" }
+        "psr-0": { "INL\\ETL": "lib/" },
+        "classmap": [ "example/" ]
     }
 }
