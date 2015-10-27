@@ -10,18 +10,8 @@ namespace INL\ETL;
 interface Transformer
 {
     /**
-     * @return \ArrayIterator
-     */
-    public function getIterator();
-
-    /**
-     * @param string $field
      * @param Extractor $extractor
-     */
-    public function transform($field, Extractor $extractor);
-
-    /**
      * @return mixed
      */
-    public function getPrototype();
+    public function transform(Extractor $extractor);
 }

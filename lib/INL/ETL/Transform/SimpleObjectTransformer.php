@@ -18,9 +18,6 @@ class SimpleObjectTransformer implements Transformer
     /** @var TransformerExtension */
     private $extension;
 
-    /** @var object */
-    private $prototype;
-
     /**
      * @param string|object $class
      * @param TransformerExtension $extension
@@ -32,43 +29,49 @@ class SimpleObjectTransformer implements Transformer
     }
 
     /**
-     * @return \ArrayIterator
+     * @param Extractor $extractor
+     * @return object
      */
-    public function getIterator()
+    public function transform(Extractor $extractor)
     {
-        return new \ArrayIterator(array_map(function ($reflectionProperty) {
-            /** @var \ReflectionProperty $reflectionProperty */
-            return $reflectionProperty->getName();
-        }, $this->refClass->getProperties(\ReflectionProperty::IS_PRIVATE)));
+        $prototype = $this->refClass->newInstanceWithoutConstructor();
+        $propertiesNames = $this->getPrototypePropertiesNames();
+
+        foreach ($propertiesNames as $propertyName) {
+            $this->transformSinglePropertyValue($extractor, $propertyName, $prototype);
+        }
+        return $prototype;
     }
 
     /**
-     * @param string $field
-     * @param Extractor $extractor
+     * @return array
      */
-    public function transform($field, Extractor $extractor)
+    private function getPrototypePropertiesNames()
     {
-        if (is_null($this->prototype)) {
-            $this->prototype = $this->refClass->newInstanceWithoutConstructor();
-        }
+        return array_map(function ($reflectionProperty) {
+            /** @var \ReflectionProperty $reflectionProperty */
+            return $reflectionProperty->getName();
+        }, $this->refClass->getProperties());
+    }
 
-        $property = $this->refClass->getProperty($field);
+    /**
+     * @param Extractor $extractor
+     * @param string $propertyName
+     * @param $prototype
+     */
+    private function transformSinglePropertyValue(Extractor $extractor, $propertyName, $prototype)
+    {
+        $transformMethod = 'transform' . ucfirst($propertyName);
+        if (!method_exists($this->extension, $transformMethod)) {
+            throw new \InvalidArgumentException(
+                sprintf('Method "%s" not found in transformer extension object', $transformMethod)
+            );
+        }
+        $value = $this->extension->{$transformMethod}($extractor);
+        $property = $this->refClass->getProperty($propertyName);
         if (!$property->isPublic()) {
             $property->setAccessible(true);
         }
-
-        $transformMethod = 'transform' . ucfirst($field);
-        if (method_exists($this->extension, $transformMethod)) {
-            $value = $this->extension->{$transformMethod}($extractor);
-            $property->setValue($this->prototype, $value);
-        }
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getPrototype()
-    {
-        return $this->prototype;
+        $property->setValue($prototype, $value);
     }
 }

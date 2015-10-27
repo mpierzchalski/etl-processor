@@ -2,6 +2,7 @@
 
 namespace INL\ETL;
 
+use INL\ETL\Extract\ArrayExtractor;
 /**
  * @package inlworkaround
  * @author  Michał Pierzchalski <michal.pierzchalski@gmail.com>
@@ -32,13 +33,32 @@ class Processor
 
     public function proceed()
     {
-        $iterator = $this->transformer->getIterator();
-        do {
-            $this->transformer->transform($iterator->current(), $this->extractor);
-            $iterator->next();
-        } while ($iterator->valid());
+        $this->extractor->rewind();
+        if ($this->extractor->hasChildren()) {
+            $this->proceedWithItems($this->extractor);
+        } else {
+            $this->proceedWithSingleItem($this->extractor->current());
+        }
+    }
 
-        $prototype = $this->transformer->getPrototype();
-        $this->loader->load($prototype);
+    /**
+     * @param \RecursiveIterator $itemsExtractor
+     */
+    private function proceedWithItems(\RecursiveIterator $itemsExtractor)
+    {
+        do {
+            $extractedItem = new ArrayExtractor($itemsExtractor->current());
+            $this->proceedWithSingleItem($extractedItem);
+            $itemsExtractor->next();
+        } while ($itemsExtractor->valid());
+    }
+
+    /**
+     * @param mixed $item
+     */
+    private function proceedWithSingleItem($item)
+    {
+        $transformedData = $this->transformer->transform($item);
+        $this->loader->load($transformedData);
     }
 }

@@ -7,6 +7,6 @@ namespace INL\ETL;
  * @author  Michał Pierzchalski <michal.pierzchalski@gmail.com>
  * @license MIT
  */
-interface Extractor extends \Iterator, \Countable, \ArrayAccess
+interface Extractor extends \Iterator, \Countable, \ArrayAccess, \RecursiveIterator
 {
 }
