@@ -2,7 +2,6 @@
 
 namespace INL\ETL;
 
-use INL\ETL\Extract\ArrayExtractor;
 /**
  * @package inlworkaround
  * @author  Michał Pierzchalski <michal.pierzchalski@gmail.com>
@@ -33,32 +32,38 @@ class Processor
 
     public function proceed()
     {
-        $this->extractor->rewind();
-        if ($this->extractor->hasChildren()) {
-            $this->proceedWithItems($this->extractor);
-        } else {
-            $this->proceedWithSingleItem($this->extractor->current());
+        $extractedData = $this->extractor->extract();
+        if (!$extractedData instanceof ExtractedData) {
+            throw new \InvalidArgumentException(
+                'Extractor should return an instance of INL\\ETL\\ExtractedData class'
+            );
         }
+        if ($extractedData->hasChildren()) {
+            $this->proceedWithItems($extractedData);
+        } else {
+            $this->proceedWithSingleItem($extractedData->current());
+        }
+        $this->loader->commit();
     }
 
     /**
-     * @param \RecursiveIterator $itemsExtractor
+     * @param ExtractedData $data
      */
-    private function proceedWithItems(\RecursiveIterator $itemsExtractor)
+    private function proceedWithItems(ExtractedData $data)
     {
         do {
-            $extractedItem = new ArrayExtractor($itemsExtractor->current());
-            $this->proceedWithSingleItem($extractedItem);
-            $itemsExtractor->next();
-        } while ($itemsExtractor->valid());
+            $itemData = $data->current();
+            $this->proceedWithSingleItem($itemData);
+            $data->next();
+        } while ($data->valid());
     }
 
     /**
-     * @param mixed $item
+     * @param ExtractedItemData $itemData
      */
-    private function proceedWithSingleItem($item)
+    private function proceedWithSingleItem(ExtractedItemData $itemData)
     {
-        $transformedData = $this->transformer->transform($item);
+        $transformedData = $this->transformer->transform($itemData);
         $this->loader->load($transformedData);
     }
 }

@@ -2,7 +2,7 @@
 
 namespace INL\ETL\Transform;
 
-use INL\ETL\Extractor;
+use INL\ETL\ExtractedItemData;
 use INL\ETL\Transformer;
 use INL\ETL\TransformerExtension;
 /**
@@ -29,16 +29,16 @@ class SimpleObjectTransformer implements Transformer
     }
 
     /**
-     * @param Extractor $extractor
+     * @param ExtractedItemData $itemData
      * @return object
      */
-    public function transform(Extractor $extractor)
+    public function transform(ExtractedItemData $itemData)
     {
         $prototype = $this->refClass->newInstanceWithoutConstructor();
         $propertiesNames = $this->getPrototypePropertiesNames();
 
         foreach ($propertiesNames as $propertyName) {
-            $this->transformSinglePropertyValue($extractor, $propertyName, $prototype);
+            $this->transformSinglePropertyValue($itemData, $propertyName, $prototype);
         }
         return $prototype;
     }
@@ -55,11 +55,11 @@ class SimpleObjectTransformer implements Transformer
     }
 
     /**
-     * @param Extractor $extractor
+     * @param ExtractedItemData $itemData
      * @param string $propertyName
      * @param $prototype
      */
-    private function transformSinglePropertyValue(Extractor $extractor, $propertyName, $prototype)
+    private function transformSinglePropertyValue(ExtractedItemData $itemData, $propertyName, $prototype)
     {
         $transformMethod = 'transform' . ucfirst($propertyName);
         if (!method_exists($this->extension, $transformMethod)) {
@@ -67,7 +67,7 @@ class SimpleObjectTransformer implements Transformer
                 sprintf('Method "%s" not found in transformer extension object', $transformMethod)
             );
         }
-        $value = $this->extension->{$transformMethod}($extractor);
+        $value = $this->extension->{$transformMethod}($itemData);
         $property = $this->refClass->getProperty($propertyName);
         if (!$property->isPublic()) {
             $property->setAccessible(true);

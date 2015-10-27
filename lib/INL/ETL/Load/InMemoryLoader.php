@@ -22,4 +22,6 @@ class InMemoryLoader implements Loader
         $this->stack[] = $subject;
     }
 
+    public function commit()
+    {}
 } 

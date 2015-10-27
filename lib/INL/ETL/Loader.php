@@ -14,4 +14,9 @@ interface Loader
      * @return void
      */
     public function load($subject);
+
+    /**
+     * @return void
+     */
+    public function commit();
 } 
