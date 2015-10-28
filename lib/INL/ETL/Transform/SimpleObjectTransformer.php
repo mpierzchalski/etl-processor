@@ -35,31 +35,32 @@ class SimpleObjectTransformer implements Transformer
     public function transform(ExtractedItemData $itemData)
     {
         $prototype = $this->refClass->newInstanceWithoutConstructor();
-        $propertiesNames = $this->getPrototypePropertiesNames();
-
-        foreach ($propertiesNames as $propertyName) {
-            $this->transformSinglePropertyValue($itemData, $propertyName, $prototype);
+        foreach ($this->getProperties() as $property) {
+            $transformedValue = $this->transformSinglePropertyValue($itemData, $property->getName(), $prototype);
+            $this->bindValue($property, $transformedValue, $prototype);
         }
         return $prototype;
     }
 
     /**
-     * @return array
+     * @return array|\ReflectionProperty[]
      */
-    private function getPrototypePropertiesNames()
+    private function getProperties()
     {
-        return array_map(function ($reflectionProperty) {
-            /** @var \ReflectionProperty $reflectionProperty */
-            return $reflectionProperty->getName();
-        }, $this->refClass->getProperties());
+        $properties = [];
+        $class = $this->refClass;
+        do {
+            $properties = array_merge($class->getProperties(), $properties);
+        } while($class = $class->getParentClass());
+        return $properties;
     }
 
     /**
      * @param ExtractedItemData $itemData
      * @param string $propertyName
-     * @param $prototype
+     * @return mixed
      */
-    private function transformSinglePropertyValue(ExtractedItemData $itemData, $propertyName, $prototype)
+    private function transformSinglePropertyValue(ExtractedItemData $itemData, $propertyName)
     {
         $transformMethod = 'transform' . ucfirst($propertyName);
         if (!method_exists($this->extension, $transformMethod)) {
@@ -67,11 +68,24 @@ class SimpleObjectTransformer implements Transformer
                 sprintf('Method "%s" not found in transformer extension object', $transformMethod)
             );
         }
-        $value = $this->extension->{$transformMethod}($itemData);
-        $property = $this->refClass->getProperty($propertyName);
-        if (!$property->isPublic()) {
-            $property->setAccessible(true);
+        return $this->extension->{$transformMethod}($itemData);
+    }
+
+    /**
+     * @param \ReflectionProperty $property
+     * @param mixed $value
+     * @param object $object
+     */
+    private function bindValue(\ReflectionProperty $property, $value, $object)
+    {
+        $setterName = 'set' . ucfirst($property->getName());
+        if (method_exists($object, $setterName)) {
+            $object->{$setterName}($value);
+        } else {
+            if (!$property->isPublic()) {
+                $property->setAccessible(true);
+            }
+            $property->setValue($object, $value);
         }
-        $property->setValue($prototype, $value);
     }
 }

@@ -35,4 +35,12 @@ class ObjectTransformer implements TransformerExtension
     {
         return $itemData['status'];
     }
+
+    public function transformDeletedAt(ExtractedItemData $itemData)
+    {
+        if ($itemData['deleted_at']) {
+            return \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $itemData['deleted_at']);
+        }
+        return null;
+    }
 } 

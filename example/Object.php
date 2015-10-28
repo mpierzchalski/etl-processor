@@ -7,11 +7,12 @@ namespace example;
  * @author  Michał Pierzchalski <michal.pierzchalski@gmail.com>
  * @license MIT
  */
-class Object
+class Object extends InheritedObject
 {
-    private $id;
-    private $name;
-    private $info;
-    private $createdAt;
-    private $status;
+    private $deletedAt;
+
+    public function setDeletedAt($deletedAt)
+    {
+        $this->deletedAt = $deletedAt;
+    }
 } 
