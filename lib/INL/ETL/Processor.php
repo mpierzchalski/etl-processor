@@ -59,9 +59,9 @@ class Processor
     }
 
     /**
-     * @param ExtractedItemData $itemData
+     * @param mixed $itemData
      */
-    private function proceedWithSingleItem(ExtractedItemData $itemData)
+    private function proceedWithSingleItem($itemData)
     {
         $transformedData = $this->transformer->transform($itemData);
         $this->loader->load($transformedData);

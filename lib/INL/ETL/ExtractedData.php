@@ -31,11 +31,11 @@ class ExtractedData extends RecursiveArrayIterator
         if ($itr->hasChildren()) {
             $itr->rewind();
             do {
-                $items[$itr->key()] = new ExtractedItemData($itr->current());
+                $items[$itr->key()] = $itr->current();
                 $itr->next();
             } while ($itr->valid());
         } else {
-            $items[$itr->key()] = new ExtractedItemData($itr->current());
+            $items[$itr->key()] = $itr->current();
         }
         return $items;
     }

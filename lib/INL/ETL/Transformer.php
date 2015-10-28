@@ -10,8 +10,8 @@ namespace INL\ETL;
 interface Transformer
 {
     /**
-     * @param ExtractedItemData $itemData
+     * @param mixed $itemData
      * @return mixed
      */
-    public function transform(ExtractedItemData $itemData);
+    public function transform($itemData);
 }

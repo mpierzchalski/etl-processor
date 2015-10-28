@@ -29,10 +29,10 @@ class SimpleObjectTransformer implements Transformer
     }
 
     /**
-     * @param ExtractedItemData $itemData
+     * @param mixed $itemData
      * @return object
      */
-    public function transform(ExtractedItemData $itemData)
+    public function transform($itemData)
     {
         $prototype = $this->refClass->newInstanceWithoutConstructor();
         foreach ($this->getProperties() as $property) {
@@ -56,11 +56,11 @@ class SimpleObjectTransformer implements Transformer
     }
 
     /**
-     * @param ExtractedItemData $itemData
+     * @param mixed $itemData
      * @param string $propertyName
      * @return mixed
      */
-    private function transformSinglePropertyValue(ExtractedItemData $itemData, $propertyName)
+    private function transformSinglePropertyValue($itemData, $propertyName)
     {
         $transformMethod = 'transform' . ucfirst($propertyName);
         if (!method_exists($this->extension, $transformMethod)) {

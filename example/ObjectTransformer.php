@@ -11,32 +11,32 @@ use INL\ETL\TransformerExtension;
  */
 class ObjectTransformer implements TransformerExtension
 {
-    public function transformId(ExtractedItemData $itemData)
+    public function transformId($itemData)
     {
         return $itemData['id'];
     }
 
-    public function transformName(ExtractedItemData $itemData)
+    public function transformName( $itemData)
     {
         return $itemData['title'];
     }
 
-    public function transformInfo(ExtractedItemData $itemData)
+    public function transformInfo( $itemData)
     {
         return $itemData['description'];
     }
 
-    public function transformCreatedAt(ExtractedItemData $itemData)
+    public function transformCreatedAt( $itemData)
     {
         return \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $itemData['created_at']);
     }
 
-    public function transformStatus(ExtractedItemData $itemData)
+    public function transformStatus( $itemData)
     {
         return $itemData['status'];
     }
 
-    public function transformDeletedAt(ExtractedItemData $itemData)
+    public function transformDeletedAt( $itemData)
     {
         if ($itemData['deleted_at']) {
             return \DateTimeImmutable::createFromFormat('Y-m-d H:i:s', $itemData['deleted_at']);

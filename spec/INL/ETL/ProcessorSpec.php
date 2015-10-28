@@ -3,7 +3,6 @@
 namespace spec\INL\ETL;
 
 use INL\ETL\ExtractedData;
-use INL\ETL\ExtractedItemData;
 use INL\ETL\Extractor;
 use INL\ETL\Loader;
 use INL\ETL\Transformer;
@@ -16,10 +15,9 @@ class ProcessorSpec extends ObjectBehavior
         Extractor $extractor,
         Transformer $transformer,
         Loader $loader,
-        ExtractedData $extractedData,
-        ExtractedItemData $extractedItemData
+        ExtractedData $extractedData
     ) {
-        $extractedData->current()->willReturn($extractedItemData);
+        $extractedData->current()->willReturn([]);
         $extractor->extract()->willReturn($extractedData);
         $this->beConstructedWith($extractor, $transformer, $loader);
     }
