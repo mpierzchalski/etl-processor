@@ -5,6 +5,8 @@ namespace INL\ETL\Transform;
 use INL\ETL\ExtractedItemData;
 use INL\ETL\Transformer;
 use INL\ETL\TransformerExtension;
+use Symfony\Component\PropertyAccess\PropertyAccess;
+
 /**
  * @package inlworkaround
  * @author  Michał Pierzchalski <michal.pierzchalski@gmail.com>
@@ -15,14 +17,14 @@ class SimpleObjectTransformer implements Transformer
     /** @var \ReflectionClass */
     private $refClass;
 
-    /** @var TransformerExtension */
+    /** @var TransformerExtension|null */
     private $extension;
 
     /**
      * @param string|object $class
      * @param TransformerExtension $extension
      */
-    public function __construct($class, TransformerExtension $extension)
+    public function __construct($class, TransformerExtension $extension = null)
     {
         $this->refClass = new \ReflectionClass($class);
         $this->extension = $extension;
@@ -62,13 +64,20 @@ class SimpleObjectTransformer implements Transformer
      */
     private function transformSinglePropertyValue($itemData, $propertyName)
     {
-        $transformMethod = 'transform' . ucfirst($propertyName);
-        if (!method_exists($this->extension, $transformMethod)) {
-            throw new \InvalidArgumentException(
-                sprintf('Method "%s" not found in transformer extension object', $transformMethod)
-            );
+        if ($this->extension) {
+            $transformMethod = 'transform' . ucfirst($propertyName);
+            if (!method_exists($this->extension, $transformMethod)) {
+                throw new \InvalidArgumentException(
+                    sprintf('Method "%s" not found in transformer extension object', $transformMethod)
+                );
+            }
+            return $this->extension->{$transformMethod}($itemData);
+
+        } else {
+            $propertyAccessor = PropertyAccess::createPropertyAccessor();
+            $fixedPropertyName = is_array($itemData) ? sprintf('[%s]', $propertyName) : $propertyName;
+            return $propertyAccessor->getValue($itemData, $fixedPropertyName);
         }
-        return $this->extension->{$transformMethod}($itemData);
     }
 
     /**

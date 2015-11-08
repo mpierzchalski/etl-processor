@@ -15,4 +15,12 @@ class Object extends InheritedObject
     {
         $this->deletedAt = $deletedAt;
     }
+
+    /**
+     * @return mixed
+     */
+    public function getDeletedAt()
+    {
+        return $this->deletedAt;
+    }
 } 
