@@ -53,20 +53,23 @@ class Processor
     public function proceed()
     {
         $extractedData = $this->extractor->extract();
+        if (!$extractedData instanceof ExtractedData) {
+            throw new ProcessorException(sprintf(
+                'Extraction result must be an instance of INL\\ETL\\ExtractedData, but %s was returned.',
+                is_object($extractedData) ? get_class($extractedData) : gettype($extractedData)
+            ));
+        }
+
         $this->eventDispatcher->dispatch(
             ProcessorEvents::DATA_EXTRACTED,
             new DataExtractedEvent($extractedData)
         );
-
-        if (!$extractedData instanceof ExtractedData) {
-            throw new \InvalidArgumentException(
-                'Extractor should return an instance of INL\\ETL\\ExtractedData class'
-            );
-        }
-        if ($extractedData->hasChildren()) {
-            $this->proceedWithItems($extractedData);
-        } else {
-            $this->proceedWithSingleItem($extractedData->current());
+        if ($extractedData->count()) {
+            if ($extractedData->hasChildren()) {
+                $this->proceedWithItems($extractedData);
+            } else {
+                $this->proceedWithSingleItem($extractedData->current());
+            }
         }
         $this->eventDispatcher->dispatch(
             ProcessorEvents::DATA_TRANSFORMED,

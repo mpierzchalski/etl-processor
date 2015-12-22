@@ -24,9 +24,12 @@ class ExtractedData extends RecursiveArrayIterator
      * @param $array
      * @return array
      */
-    private function mapItems($array)
+    private function mapItems(array $array)
     {
         $items = [];
+        if (empty($array)) {
+            return $items;
+        }
         $itr = new RecursiveArrayIterator($array);
         if ($itr->hasChildren()) {
             $itr->rewind();
