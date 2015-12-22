@@ -17,7 +17,7 @@ class ProcessorSpec extends ObjectBehavior
         Loader $loader,
         ExtractedData $extractedData
     ) {
-        $extractedData->current()->willReturn([]);
+        $extractedData->current()->willReturn([['id' => 1]]);
         $extractor->extract()->willReturn($extractedData);
         $this->beConstructedWith($extractor, $transformer, $loader);
     }
@@ -29,12 +29,14 @@ class ProcessorSpec extends ObjectBehavior
 
     function it_proceeds_with_collection_of_extracted_data(ExtractedData $extractedData)
     {
+        $extractedData->count()->willReturn(1);
         $extractedData->hasChildren()->willReturn(false);
         $this->proceed();
     }
 
     function it_proceeds_with_single_extracted_data(ExtractedData $extractedData)
     {
+        $extractedData->count()->willReturn(1);
         $extractedData->hasChildren()->willReturn(true);
         $extractedData->next()->shouldBeCalled();
         $extractedData->valid()->shouldBeCalled();
@@ -45,6 +47,6 @@ class ProcessorSpec extends ObjectBehavior
         Extractor $extractor
     ) {
         $extractor->extract()->willReturn(null);
-        $this->shouldThrow('\InvalidArgumentException')->during('proceed', []);
+        $this->shouldThrow('INL\ETL\ProcessorException')->during('proceed', []);
     }
 }
