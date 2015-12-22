@@ -10,7 +10,7 @@
     "require": {
         "php": ">=5.4",
         "symfony/property-access": "~2.0",
-        "symfony/event-dispatcher": "^3.0"
+        "symfony/event-dispatcher": ">=2.5"
     },
     "require-dev": {
         "phpspec/phpspec": "~2.0",
@@ -19,7 +19,7 @@
     "config": {
         "bin-dir": "bin"
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "stable",
     "autoload": {
         "psr-0": { "INL\\ETL": "lib/" },
         "classmap": [ "example/" ]
